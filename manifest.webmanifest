@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "আমার স্টক ম্যানেজার",
+  "short_name": "স্টক ম্যানেজার",
+  "description": "পণ্য, স্টক ও বারকোড ম্যানেজ করার সহজ বাংলা অ্যাপ",
+  "lang": "bn",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f7f4",
+  "theme_color": "#123b2a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
