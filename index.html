@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b2a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>আমার স্টক ম্যানেজার</title>
+<style>
+:root{--green:#176b45;--dark:#123b2a;--bg:#f3f7f4;--card:#fff;--text:#17231c;--muted:#68756d;--line:#dfe8e1;--red:#b42318;--gold:#fff5d6}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(120deg,var(--dark),var(--green));color:white;padding:22px 16px 28px}
+.wrap{max-width:1050px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:23px;font-weight:800}.sub{opacity:.85;font-size:13px;margin-top:4px}
+button,input,select{font:inherit}button{border:0;border-radius:11px;padding:10px 14px;font-weight:700;cursor:pointer}.primary{background:var(--green);color:#fff}.lightbtn{background:#ffffff20;color:white;border:1px solid #ffffff55}.danger{background:#ffebe9;color:var(--red)}.soft{background:#e8f3ec;color:var(--green)}
+main{padding:18px 14px 40px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:-18px}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 5px 18px #0d39200a}.stat small{color:var(--muted)}.stat strong{display:block;font-size:25px;margin-top:5px}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;margin-top:16px}.panel h2{font-size:18px;margin:0 0 14px}.field{margin-bottom:12px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field input,.field select,.search{width:100%;padding:11px 12px;border:1px solid #cfdad2;border-radius:10px;background:white;outline-color:var(--green)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}.hint{font-size:12px;color:var(--muted);line-height:1.5}.toolbar{display:flex;gap:10px;margin-bottom:12px}.toolbar .search{flex:1}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:560px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:700;background:#f8fbf8}td strong{font-size:14px}.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#e8f3ec;color:var(--green);font-size:11px;font-weight:800}.badge.low{background:#fff0df;color:#a04b00}.empty{text-align:center;color:var(--muted);padding:35px 10px}.productname{display:flex;align-items:center;gap:9px}.thumb{width:38px;height:38px;object-fit:cover;border-radius:9px;background:#e8f3ec}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:5}.modal.open{display:flex}.modalbox{background:white;border-radius:16px;padding:18px;width:min(440px,100%)}.modalbox h3{margin-top:0}.modal video{width:100%;border-radius:12px;background:#111}.foot{text-align:center;font-size:12px;color:var(--muted);padding:20px 0}.notice{background:var(--gold);border:1px solid #f2d98b;border-radius:12px;padding:12px;margin-top:14px;font-size:12px;line-height:1.5}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr);gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.stat small{font-size:11px}.brand{font-size:20px}.top{align-items:flex-start}.top button{font-size:12px;padding:9px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><div><div class="brand">📦 আমার স্টক ম্যানেজার</div><div class="sub">পণ্য, স্টক ও বারকোড এক জায়গায়</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="lightbtn" id="installBtn" hidden>📲 অ্যাপ ইনস্টল</button><button class="lightbtn" id="exportBtn">⬇ ডেটা Export</button></div></div>
+</div></header>
+<main class="wrap">
+  <section class="stats">
+    <div class="stat"><small>মোট পণ্য</small><strong id="totalProducts">0</strong></div>
+    <div class="stat"><small>মোট স্টক</small><strong id="totalStock">0</strong></div>
+    <div class="stat"><small>কম স্টক (≤ 5)</small><strong id="lowStock">0</strong></div>
+  </section>
+  <div class="layout">
+    <section class="panel">
+      <h2 id="formTitle">➕ নতুন পণ্য যোগ করুন</h2>
+      <form id="productForm">
+        <input type="hidden" id="editId">
+        <div class="field"><label for="name">পণ্যের নাম *</label><input id="name" required placeholder="যেমন: পানি 500ml"></div>
+        <div class="row">
+          <div class="field"><label for="code">পণ্য কোড</label><input id="code" placeholder="যেমন: P-001"></div>
+          <div class="field"><label for="barcode">বারকোড</label><input id="barcode" placeholder="বারকোড নম্বর"></div>
+        </div>
+        <div class="field"><button type="button" class="soft" id="scanBtn">▦ ক্যামেরা দিয়ে বারকোড স্ক্যান</button></div>
+        <div class="row">
+          <div class="field"><label for="price">বিক্রয় মূল্য (SAR)</label><input id="price" type="number" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label for="stock">স্টকের পরিমাণ *</label><input id="stock" type="number" min="0" step="1" required placeholder="0"></div>
+        </div>
+        <div class="field"><label for="image">ছবির URL (ঐচ্ছিক)</label><input id="image" type="url" placeholder="https://..."></div>
+        <div class="actions"><button class="primary" type="submit" id="saveBtn">পণ্য সংরক্ষণ</button><button type="button" class="soft" id="resetBtn">ফর্ম পরিষ্কার</button></div>
+      </form>
+      <div class="notice">ℹ️ এই সংস্করণে ডেটা আপনার এই ব্রাউজার/ফোনেই সেভ হবে। অন্য ফোনে দেখতে বা অনলাইনে সবার সঙ্গে শেয়ার করতে পরে অনলাইন ডেটাবেস যুক্ত করতে হবে।</div>
+    </section>
+    <section class="panel">
+      <h2>📋 পণ্যের তালিকা</h2>
+      <div class="toolbar"><input class="search" id="search" placeholder="নাম, কোড বা বারকোড দিয়ে খুঁজুন…"><button class="soft" id="importBtn">Import</button><input type="file" id="importFile" accept=".json" hidden></div>
+      <div class="tablewrap"><table><thead><tr><th>পণ্য</th><th>কোড / বারকোড</th><th>মূল্য</th><th>স্টক</th><th>কাজ</th></tr></thead><tbody id="productRows"></tbody></table><div class="empty" id="emptyState">এখনও কোনো পণ্য যোগ করা হয়নি। বাম পাশের ফর্ম দিয়ে প্রথম পণ্য যোগ করুন।</div></div>
+    </section>
+  </div>
+  <div class="foot">আমার স্টক ম্যানেজার • মোবাইল ও কম্পিউটারে ব্যবহারযোগ্য</div>
+</main>
+<div class="modal" id="scanModal"><div class="modalbox"><h3>বারকোড স্ক্যান করুন</h3><video id="video" playsinline></video><p class="hint" id="scanStatus">ক্যামেরা চালু হচ্ছে… বারকোড ক্যামেরার সামনে ধরুন।</p><button class="soft" id="closeScan">বন্ধ করুন</button></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='my_stock_inventory_v1';
+let products=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}}
+function save(){localStorage.setItem(KEY,JSON.stringify(products));render()}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function money(v){return 'SAR '+(Number(v)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){
+ $('totalProducts').textContent=products.length;
+ $('totalStock').textContent=products.reduce((a,p)=>a+(Number(p.stock)||0),0);
+ $('lowStock').textContent=products.filter(p=>Number(p.stock)<=5).length;
+ const q=$('search').value.trim().toLowerCase();
+ const list=products.filter(p=>[p.name,p.code,p.barcode].some(x=>String(x||'').toLowerCase().includes(q)));
+ $('productRows').innerHTML=list.map(p=>`<tr><td><div class="productname">${p.image?`<img class="thumb" src="${esc(p.image)}" alt="" onerror="this.style.display='none'">`:'<span class="thumb" style="display:grid;place-items:center">📦</span>'}<div><strong>${esc(p.name)}</strong><br><span class="hint">${esc(p.id.slice(-5))}</span></div></div></td><td>${esc(p.code||'—')}<br><span class="hint">${esc(p.barcode||'')}</span></td><td>${money(p.price)}</td><td><span class="badge ${Number(p.stock)<=5?'low':''}">${Number(p.stock)||0} pcs</span></td><td><div class="actions"><button class="soft" onclick="editProduct('${p.id}')">Edit</button><button class="danger" onclick="deleteProduct('${p.id}')">Delete</button></div></td></tr>`).join('');
+ $('emptyState').style.display=list.length?'none':'block';
+}
+function resetForm(){ $('productForm').reset();$('editId').value='';$('formTitle').textContent='➕ নতুন পণ্য যোগ করুন';$('saveBtn').textContent='পণ্য সংরক্ষণ';}
+$('productForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const eid=$('editId').value;
+ const p={id:eid||id(),name:$('name').value.trim(),code:$('code').value.trim(),barcode:$('barcode').value.trim(),price:Number($('price').value)||0,stock:Math.max(0,Math.floor(Number($('stock').value)||0)),image:$('image').value.trim()};
+ if(!p.name)return;
+ if(eid)products=products.map(x=>x.id===eid?p:x);else products.unshift(p);
+ save();resetForm();
+});
+window.editProduct=function(pid){const p=products.find(x=>x.id===pid);if(!p)return;$('editId').value=p.id;$('name').value=p.name;$('code').value=p.code||'';$('barcode').value=p.barcode||'';$('price').value=p.price||'';$('stock').value=p.stock??0;$('image').value=p.image||'';$('formTitle').textContent='✏️ পণ্য সম্পাদনা';$('saveBtn').textContent='পরিবর্তন সংরক্ষণ';window.scrollTo({top:0,behavior:'smooth'})}
+window.deleteProduct=function(pid){const p=products.find(x=>x.id===pid);if(p&&confirm(`“${p.name}” পণ্যটি মুছে ফেলবেন?`)){products=products.filter(x=>x.id!==pid);save();if($('editId').value===pid)resetForm()}}
+$('resetBtn').onclick=resetForm;$('search').addEventListener('input',render);
+$('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(products,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='stock-inventory-backup.json';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw Error();if(confirm('Import করলে বর্তমান তালিকার সঙ্গে নতুন পণ্য যোগ হবে। চালাবেন?')){const seen=new Set(products.map(p=>p.id));products=[...products,...data.filter(p=>p&&p.name).map(p=>({...p,id:seen.has(p.id)?id():(p.id||id())}))];save();alert('Import সম্পন্ন হয়েছে।')}}catch(err){alert('ফাইলটি সঠিক JSON backup নয়।')}e.target.value=''};
+let stream=null,detector=null,scanLoop=false;
+$('scanBtn').onclick=async()=>{
+ if(!('BarcodeDetector'in window)){alert('এই ব্রাউজারে BarcodeDetector সমর্থিত নয়। বারকোড নম্বরটি হাতে লিখুন অথবা Chrome-এর আপডেটেড সংস্করণে চেষ্টা করুন।');return}
+ $('scanModal').classList.add('open');
+ try{detector=new BarcodeDetector({formats:['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code']});stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});$('video').srcObject=stream;await $('video').play();$('scanStatus').textContent='বারকোড ক্যামেরার সামনে ধরুন…';scanLoop=true;scanFrame()}catch(e){$('scanStatus').textContent='ক্যামেরা চালু হয়নি। সাইটটি HTTPS-এ খুলুন এবং ক্যামেরার অনুমতি দিন।'}
+};
+async function scanFrame(){if(!scanLoop)return;try{const codes=await detector.detect($('video'));if(codes.length){$('barcode').value=codes[0].rawValue;closeScanner();return}}catch(e){}requestAnimationFrame(scanFrame)}
+function closeScanner(){scanLoop=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('video').srcObject=null;$('scanModal').classList.remove('open')}
+$('closeScan').onclick=closeScanner;$('scanModal').addEventListener('click',e=>{if(e.target===$('scanModal'))closeScanner()});
+render();
+// PWA: allow installation on supported browsers and cache the app shell for offline opening.
+let installPrompt=null;
+const installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.hidden=false});
+installBtn.addEventListener('click',async()=>{if(!installPrompt){alert('ব্রাউজারের মেনু থেকে “Add to Home screen” বা “Install app” বেছে নিন।');return}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installBtn.hidden=true});
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')) {
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
