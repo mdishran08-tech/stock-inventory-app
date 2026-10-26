@@ -1,0 +1,8 @@
+{
+  "name": "আমার স্টক ম্যানেজার",
+  "short_name": "স্টক ম্যানেজার",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#123b2a"
+}
